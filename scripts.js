@@ -1,5 +1,6 @@
 let computerScore = 0;
 let playerScore = 0;
+const buttons = document.querySelectorAll('button');
 
 const choices = ["rock", "paper", "scissors"];
 
@@ -8,86 +9,58 @@ function getComputerChoice() {
     return choices[~~(Math.random() * choices.length)];
 }
 
-function playGame(playerSelection, computerSelection) {
-    if (playerSelection.toUpperCase() === computerSelection.toUpperCase()) {
-        return 0;
-    }
+function playRound(playerSelection) {
+    let computerSelection = getComputerChoice();
+    let result = "";
 
-    if (playerSelection.toUpperCase() == "ROCK" && computerSelection.toUpperCase() == "SCISSORS" ||
-        playerSelection.toUpperCase() == "PAPER" && computerSelection.toUpperCase() == "ROCK" ||
-        playerSelection.toUpperCase() == "SCISSORS" && computerSelection.toUpperCase() == "PAPER") {
-        return 1;
-    }
-    return 2;
-}
+    if ((playerSelection == 'rock' && computerSelection == 'scissors') ||
+        (playerSelection == 'scissors' && computerSelection == 'paper') ||
+        (playerSelection == 'paper' && computerSelection == 'rock')) {
 
-function getWinner(playerScore, computerScore) {
-    if (playerScore > computerScore) {
-        return "You win the game. Go on and do great things.";
+        playerScore += 1
+        result = ('You win! ' + playerSelection + ' beats ' + computerSelection
+            + "<br><br>Player score: " + playerScore + "<br>Computer score: " + computerScore);
+
+        if (playerScore == 5) {
+            result += '<br><br>You won the game! Reload the page to play again';
+            disableButtons();
+        }
     }
-    if (computerScore > playerScore) {
-        return "You didn't win this time, but it's just a game";
+    else if (playerSelection == computerSelection) {
+        result = ('It\'s a tie. You both chose ' + playerSelection
+            + "<br><br>Player score: " + playerScore + "<br>Computer score: " + computerScore);
     }
     else {
-        return "You all tied. That's kind of funny."
+        computerScore += 1;
+        result = ('You lose! ' + computerSelection + ' beats ' + playerSelection
+            + "<br><br>Player score: " + playerScore + "<br>Computer score: " + computerScore);
+
+        if (computerScore == 5) {
+            result += '<br><br>The computer won the game! Reload the page to play again';
+            disableButtons();
+        }
     }
+
+    document.getElementById('result').innerHTML = result
+    return
 }
 
-let checkforWinner = () => {
-    if (playerScore == 5 || computerScore == 5) {
-        return true;
-    }
-    else {
-        return false;
-    }
-};
-
-
-function game(e) {
-    let winner = parseInt(playGame(e.target.id, getComputerChoice()))
-    switch (winner) {
-        case 0:
-            break;
-        case 1:
-            playerScore++;
-            break;
-        case 2:
-            computerScore++;
-            break;
-        default:
-            break;
-    }
-    addRoundInfo();
+function disableButtons() {
+    buttons.forEach(elem => {
+        elem.disabled = true;
+    })
 }
 
-function addRoundInfo() {
-
-    const mainContainer = document.querySelector(".main-container");
-    const roundInfo = document.createElement("p");
-    roundInfo.innerText = `Player round win count: ${playerScore} | Computer round win Count: ${computerScore}`;
-    mainContainer.appendChild(roundInfo);
-    //reset after win.
-    if (checkforWinner()) {
-        const mainContainer = document.querySelector(".mainContain");
-        const roundInfo = document.createElement("p");
-        roundInfo.innerText = "There was a winner. I'm going to reset it now."
-        mainContainer.appendChild(roundInfo);
-        playerScore = 0;
-        computerScore = 0;
-    }
-}
-
-function removeRoundInfo() {
-    const mainContainer = document.querySelector(".main-container");
-    while (mainContainer.firstChild) {
-        mainContainer.removeChild(mainContainer.firstChild);
-    }
+function removeResults() {
+    document.getElementById('result').innerHTML = "";
     playerScore = 0;
     computerScore = 0;
 }
 
-const btns = document.querySelectorAll(".playButton");
-btns.forEach(btn => btn.addEventListener('click', game));
-
+buttons.forEach(button => {
+    button.addEventListener('click', function () {
+        playRound(button.value);
+    })
+})
 const clearBtns = document.querySelector("#clearButton");
-clearBtns.addEventListener('click', removeRoundInfo);
+clearBtns.addEventListener('click', removeResults);
